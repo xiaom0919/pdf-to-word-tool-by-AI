@@ -61,12 +61,6 @@ cd backend
 cp .env.example .env
 ```
 
-然后编辑 `.env` 文件，填入你的 GLM-4.7 Flash API Key：
-
-```env
-ZHIPUAI_API_KEY=your_api_key_here
-```
-
 获取 API Key 的方式：
 1. 访问 https://open.bigmodel.cn/usercenter/apikeys
 2. 注册/登录账号

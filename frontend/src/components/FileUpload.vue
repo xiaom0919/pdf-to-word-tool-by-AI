@@ -2,13 +2,6 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const props = defineProps({
-  aiEnabled: {
-    type: Boolean,
-    default: false
-  }
-})
-
 const emit = defineEmits(['file-selected', 'convert', 'extract-pdf-text', 'translate-pdf'])
 
 const file = ref(null)
@@ -63,14 +56,15 @@ const convertPdf = async () => {
   }
 }
 
-const extractPdfText = () => {
+const extractPdfText = async () => {
   if (!file.value) {
     errorMessage.value = '请先选择 PDF 文件'
     return
   }
 
-  if (!props.aiEnabled) {
-    errorMessage.value = 'AI 功能未启用，请先配置 API Key（参考 README.md）'
+  const apiKey = getApiKey()
+  if (!apiKey) {
+    errorMessage.value = '请先在 AI 智能助手中配置 API Key'
     return
   }
 
@@ -159,7 +153,7 @@ const translatePdfDirectly = async () => {
         </button>
 
         <button
-          v-if="file && aiEnabled"
+          v-if="file"
           @click="extractPdfText"
           class="ai-button"
         >
@@ -170,7 +164,7 @@ const translatePdfDirectly = async () => {
         </button>
       </div>
 
-      <div v-if="file && aiEnabled" class="language-selector-section">
+      <div v-if="file" class="language-selector-section">
         <div class="language-selector-wrapper">
           <label class="language-label">
             <span class="label-icon">🌐</span>

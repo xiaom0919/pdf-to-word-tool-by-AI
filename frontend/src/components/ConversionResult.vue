@@ -15,10 +15,6 @@ const props = defineProps({
     type: Object,
     default: null
   },
-  aiEnabled: {
-    type: Boolean,
-    default: false
-  },
   file: {
     type: Object,
     default: null

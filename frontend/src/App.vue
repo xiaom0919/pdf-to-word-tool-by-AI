@@ -22,13 +22,20 @@ const aiLoading = ref(false)
 const wordTranslationResult = ref(null)
 const pdfTranslationResult = ref(null)
 
-const checkAIStatus = async () => {
-  try {
-    const response = await axios.get('/api/ai/status')
-    aiStatus.value = response.data
-    aiEnabled.value = response.data.enabled
-  } catch (error) {
-    console.error('AI 状态检查失败:', error)
+const getApiKey = () => {
+  return localStorage.getItem('zhipuai_api_key') || ''
+}
+
+const checkAIStatus = () => {
+  const apiKey = getApiKey()
+  aiEnabled.value = apiKey && apiKey !== 'your_api_key_here'
+  aiStatus.value = {
+    enabled: aiEnabled.value,
+    features: {
+      summary: true,
+      translate: true,
+      chat: true
+    }
   }
 }
 
@@ -38,8 +45,9 @@ const extractPdfText = async (selectedFile) => {
     return
   }
 
-  if (!aiEnabled.value) {
-    errorMessage.value = 'AI 功能未启用，请先配置 API Key（参考 README.md）'
+  const apiKey = getApiKey()
+  if (!apiKey) {
+    errorMessage.value = '请先在 AI 智能助手中配置 API Key'
     return
   }
 
@@ -110,11 +118,14 @@ onMounted(() => {
           PDF 转 Word 工具
         </h1>
         <p class="subtitle">简单快速 · 智能转换 · 格式保留</p>
+        <button @click="showAIPanel = true" class="ai-assistant-button">
+          <span class="ai-assistant-icon">🤖</span>
+          <span class="ai-assistant-text">AI 智能助手</span>
+        </button>
       </div>
     </div>
 
     <FileUpload
-      :ai-enabled="aiEnabled"
       @file-selected="handleFileSelected"
       @convert="handleConvert"
       @extract-pdf-text="handleExtractPdfText"
@@ -126,7 +137,6 @@ onMounted(() => {
         :conversion-result="conversionResult"
         :word-translation-result="wordTranslationResult"
         :pdf-translation-result="pdfTranslationResult"
-        :ai-enabled="aiEnabled"
         :file="file"
         @translate-word="handleTranslateWord"
       />
@@ -224,6 +234,44 @@ body {
   color: rgba(255, 255, 255, 0.7);
   font-weight: 400;
   letter-spacing: 0.5px;
+}
+
+.ai-assistant-button {
+  margin-top: 1.5rem;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.5);
+  border-radius: 12px;
+  color: #667eea;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.ai-assistant-button:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  border-color: rgba(102, 126, 234, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.ai-assistant-icon {
+  font-size: 1.2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.ai-assistant-text {
+  font-size: 0.95rem;
 }
 
 .result-section {
